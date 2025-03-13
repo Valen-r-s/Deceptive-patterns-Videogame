@@ -1,26 +1,33 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 using UnityEngine.SceneManagement;
 using TMPro;
 
 public class login : MonoBehaviour
 {
-    public Servidor servidor;
     public TMP_InputField InputUsuario;
     public TMP_Text TxtIncorrecto;
-    public TMP_Text TxtError;
     public TMP_Text TxtCampoVacio;
     public GameObject CrearUsuario;
-
-    // Panel que se muestra al iniciar sesión correctamente
     public GameObject PanelInicioSesionCorrecto;
+
+    // Referencia al script de Registro para obtener los datos temporales
+    private RegistrarUsuario registrarUsuario;
 
     // Variable para almacenar el nombre del usuario logueado
     public static string nombreRollActual;
 
+    void Start()
+    {
+        // Obtener la referencia al script de Registro (debe estar en la misma escena)
+        registrarUsuario = FindObjectOfType<RegistrarUsuario>();
+
+        // Asegurar que los mensajes de error estén ocultos al inicio
+        OcultarMensajesAdvertencia();
+    }
+
     public void IniciarSesion()
     {
-        // Ocultar todos los mensajes de advertencia antes de cualquier verificación
         OcultarMensajesAdvertencia();
 
         if (string.IsNullOrEmpty(InputUsuario.text))
@@ -29,56 +36,26 @@ public class login : MonoBehaviour
             return;
         }
 
-        StartCoroutine(Iniciar());
-    }
-
-    IEnumerator Iniciar()
-    {
-        string[] datos = new string[1];
-        datos[0] = InputUsuario.text;  // Aquí se captura el nombreRoll
-
-        StartCoroutine(servidor.ConsumirServicio("login", datos, PosCarga));
-        yield return new WaitForSeconds(0.5f);
-        yield return new WaitUntil(() => !servidor.ocupado);
-    }
-
-    public void PosCarga()
-    {
-        // Ocultar todos los mensajes de advertencia antes de mostrar un nuevo mensaje
-        OcultarMensajesAdvertencia();
-
-        switch (servidor.respuesta.codigo)
+        // Validar si el nombre ingresado coincide con el nombre registrado en la sesión
+        if (registrarUsuario != null && InputUsuario.text == registrarUsuario.ObtenerNombreRoll())
         {
-            case 205: // Inicio de sesión correcto
-                // Almacenar el nombreRoll actual cuando el inicio de sesión sea correcto
-                nombreRollActual = InputUsuario.text;
+            // Inicio de sesión correcto
+            nombreRollActual = InputUsuario.text;
+            PanelInicioSesionCorrecto.SetActive(true);
 
-                // Mostrar el panel de inicio de sesión correcto
-                PanelInicioSesionCorrecto.SetActive(true);
-
-                // Iniciar la espera de 6 segundos antes de cambiar de escena
-                StartCoroutine(EsperarYCambiarEscena());
-                break;
-
-            case 204: // Usuario incorrecto
-                TxtIncorrecto.gameObject.SetActive(true);
-                break;
-
-            case 404: // Error en la base de datos
-                TxtError.gameObject.SetActive(true);
-                break;
-
-            default:
-                break;
+            // Iniciar la espera de 6 segundos antes de cambiar de escena
+            StartCoroutine(EsperarYCambiarEscena());
+        }
+        else
+        {
+            // Usuario incorrecto
+            TxtIncorrecto.gameObject.SetActive(true);
         }
     }
 
     IEnumerator EsperarYCambiarEscena()
     {
-        // Esperar 6 segundos
         yield return new WaitForSeconds(6f);
-
-        // Cambiar a la escena indicada
         SceneManager.LoadScene("CasaVer3Prueba");
     }
 
@@ -88,11 +65,9 @@ public class login : MonoBehaviour
         CrearUsuario.SetActive(true);
     }
 
-    // Método para ocultar todos los mensajes de advertencia
     private void OcultarMensajesAdvertencia()
     {
         TxtCampoVacio.gameObject.SetActive(false);
         TxtIncorrecto.gameObject.SetActive(false);
-        TxtError.gameObject.SetActive(false);
     }
 }

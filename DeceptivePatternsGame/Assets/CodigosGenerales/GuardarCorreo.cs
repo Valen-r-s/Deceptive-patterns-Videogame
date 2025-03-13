@@ -1,28 +1,41 @@
-using System.Collections;
 using UnityEngine;
 using TMPro;
-using System.Text.RegularExpressions; // Importa el espacio de nombres para Regex
+using System.Text.RegularExpressions;
 
 public class GuardarCorreo : MonoBehaviour
 {
-    public Servidor servidor; // Referencia al objeto Servidor para enviar datos al servidor
-    public TMP_InputField InputCorreo; // InputField para ingresar el correo electrónico
-    public TMP_Text TxtErrorCorreo; // Texto para mostrar mensajes de error si el correo no es válido
+    public TMP_InputField InputCorreo; 
+    public TMP_Text TxtErrorCorreo;
 
-    public void GuardarCorreoEnBD()
+    // Variable para almacenar el correo temporalmente
+    private static string correoGuardado;
+
+    void Awake()
+    {
+        DontDestroyOnLoad(gameObject); // Evitar que se destruya al cambiar de escena
+    }
+
+    public void GuardarCorreoEnMemoria()
     {
         string correo = InputCorreo.text.Trim();
 
-        // Validar que el correo electrónico tiene un formato válido
+        // Si el campo está vacío, mostrar error
+        if (string.IsNullOrEmpty(correo))
+        {
+            MostrarError("El campo de correo está vacío.");
+            return;
+        }
+
+        // Validar que el correo tiene un formato válido
         if (EsCorreoValido(correo))
         {
-            TxtErrorCorreo.gameObject.SetActive(false); // Oculta el mensaje de error si el correo es válido
-            StartCoroutine(EnviarCorreoAlServidor(correo)); // Enviar el correo al servidor
+            TxtErrorCorreo.gameObject.SetActive(false); // Ocultar mensaje de error
+            correoGuardado = correo; // Guardar en memoria temporal
+            Debug.Log("Correo guardado: " + correoGuardado);
         }
         else
         {
-            TxtErrorCorreo.text = "Correo inválido. Asegúrate de usar un formato válido.";
-            TxtErrorCorreo.gameObject.SetActive(true); // Mostrar mensaje de error si el correo es inválido
+            MostrarError("Ingresa un correo valido.");
         }
     }
 
@@ -33,28 +46,16 @@ public class GuardarCorreo : MonoBehaviour
         return Regex.IsMatch(correo, patronCorreo, RegexOptions.IgnoreCase);
     }
 
-    // Coroutine para enviar el correo al servidor
-    IEnumerator EnviarCorreoAlServidor(string correo)
+    // Método para mostrar mensajes de error
+    private void MostrarError(string mensaje)
     {
-        string[] datos = new string[2];
-        datos[0] = login.nombreRollActual; // El nombre del usuario actual (nombreroll)
-        datos[1] = correo; // Correo electrónico
-
-        // Llama al servicio "guardar_correo" en el servidor
-        StartCoroutine(servidor.ConsumirServicio("guardar_correo", datos, ConfirmarCorreoGuardado));
-        yield return new WaitUntil(() => !servidor.ocupado);
+        TxtErrorCorreo.text = mensaje;
+        TxtErrorCorreo.gameObject.SetActive(true); // Activar el mensaje de error
     }
 
-    // Método para confirmar que el correo fue guardado en el servidor
-    private void ConfirmarCorreoGuardado()
+    // Método para obtener el correo almacenado (puede usarse en la escena final)
+    public static string ObtenerCorreo()
     {
-        if (servidor.respuesta.codigo == 200) // Código 200 para éxito
-        {
-            Debug.Log("Correo guardado correctamente en la base de datos.");
-        }
-        else
-        {
-            Debug.LogError("Error al guardar el correo en el servidor: " + servidor.respuesta.mensaje);
-        }
+        return correoGuardado;
     }
 }
