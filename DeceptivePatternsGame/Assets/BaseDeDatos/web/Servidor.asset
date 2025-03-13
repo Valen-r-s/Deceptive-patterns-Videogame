@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec4192fbafa8ae045b1038eb6443b4f3, type: 3}
+  m_Name: Servidor
+  m_EditorClassIdentifier: 
+  servidor: https://white-wombat-994036.hostingersite.com/deceptivePatterns/
+  servicios:
+  - nombre: login
+    URL: login.php
+    parametros:
+    - nombreroll
+  - nombre: registro
+    URL: reg_usuario.php
+    parametros:
+    - terminos
+    - nombreroll
+    - nombrecompleto
+  - nombre: actualizar_llaves
+    URL: actualizar_llaves.php
+    parametros:
+    - nombreroll
+    - llaves
+  - nombre: obtener_llaves
+    URL: obtener_llaves.php
+    parametros:
+    - nombreroll
+  - nombre: guardar_correo
+    URL: guardar_correo.php
+    parametros:
+    - nombreroll
+    - correo
+  - nombre: obtener_datos_usuario
+    URL: obtener_datos_usuario.php
+    parametros:
+    - nombreroll
+  - nombre: actualizarClave
+    URL: actualizar_clave.php
+    parametros:
+    - nombreroll
+    - clave
+  - nombre: actualizarPatron
+    URL: actualizar_patron.php
+    parametros:
+    - nombreroll
+    - patron
+  - nombre: encuestas
+    URL: encuestas.php
+    parametros:
+    - nombreroll
+    - p1
+    - p2
+    - p3
+    - p4
+    - p5
+    - p6
+    - p7
+    - p8
+    - p9
+    - p10
+    - p11
+    - p12
+  ocupado: 0
+  respuesta:
+    codigo: 404
+    mensaje: 
+    llaves: 0
+    nombrecompleto: 
+    correo: 
