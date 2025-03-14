@@ -3,11 +3,10 @@ using UnityEngine.UI;
 
 public class Encuestas : MonoBehaviour
 {
-    public Toggle[] togglesSi; // Lista de toggles "Sí"
-    public Toggle[] togglesNo; // Lista de toggles "No"
-    public Button botonEnviar; // Botón para enviar las respuestas
+    public Toggle[] togglesSi; 
+    public Toggle[] togglesNo;
+    public Button botonEnviar; 
 
-    // Variable estática para almacenar las respuestas temporalmente
     private static string[] respuestasGuardadas = new string[12];
 
     void Start()

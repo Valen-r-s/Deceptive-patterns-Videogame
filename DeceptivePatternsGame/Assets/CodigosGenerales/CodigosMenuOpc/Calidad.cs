@@ -1,31 +1,46 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
+
 
 public class Calidad : MonoBehaviour
 {
     public TMP_Dropdown dropdown;
     public int calidad;
 
-    // Start is called before the first frame update
     void Start()
     {
-        calidad = PlayerPrefs.GetInt("numeroDeCalidad", 3);
-        dropdown.value = calidad;
-        AjustarCalidad();
-    }
+        // Asegurar que el dropdown solo tenga dos opciones: Baja y Alta
+        dropdown.ClearOptions();
+        dropdown.AddOptions(new List<string> { "Baja", "Alta" });
 
-    // Update is called once per frame
-    void Update()
-    {
-        // Puedes agregar lógica aquí si es necesario
+        // Cargar la calidad guardada, asegurando que solo sea 0 (Baja) o 1 (Alta)
+        calidad = PlayerPrefs.GetInt("numeroDeCalidad", 1); 
+        calidad = Mathf.Clamp(calidad, 0, 1); 
+
+        dropdown.value = calidad;
+        dropdown.onValueChanged.AddListener(delegate { AjustarCalidad(); });
+
+        AjustarCalidad();
     }
 
     public void AjustarCalidad()
     {
-        QualitySettings.SetQualityLevel(dropdown.value);
-        PlayerPrefs.SetInt("numeroDeCalidad", dropdown.value);
-        calidad = dropdown.value;
+        int calidadSeleccionada = dropdown.value;
+
+        // Asignar la calidad de Unity (0 = Baja, 1 = Alta)
+        if (calidadSeleccionada == 0)
+        {
+            QualitySettings.SetQualityLevel(0); // Baja
+        }
+        else
+        {
+            QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1); // Alta
+        }
+
+        // Guardar la calidad seleccionada
+        PlayerPrefs.SetInt("numeroDeCalidad", calidadSeleccionada);
+        calidad = calidadSeleccionada;
     }
 }
