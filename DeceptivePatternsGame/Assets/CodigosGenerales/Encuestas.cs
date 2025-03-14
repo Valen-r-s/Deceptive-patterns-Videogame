@@ -1,73 +1,62 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class Encuestas : MonoBehaviour
 {
-    public Servidor servidor;
     public Toggle[] togglesSi; // Lista de toggles "Sí"
     public Toggle[] togglesNo; // Lista de toggles "No"
     public Button botonEnviar; // Botón para enviar las respuestas
 
+    // Variable estática para almacenar las respuestas temporalmente
+    private static string[] respuestasGuardadas = new string[12];
+
     void Start()
     {
         // Agregar funcionalidad al botón
-        botonEnviar.onClick.AddListener(EnviarTodasLasRespuestas);
+        botonEnviar.onClick.AddListener(GuardarRespuestasLocalmente);
+
+        // Asegurar que al marcar un toggle, el otro se desactive
+        for (int i = 0; i < togglesSi.Length; i++)
+        {
+            int index = i; // Necesario para evitar problemas con closures en C#
+            togglesSi[i].onValueChanged.AddListener((isOn) => OnToggleChanged(index, true, isOn));
+            togglesNo[i].onValueChanged.AddListener((isOn) => OnToggleChanged(index, false, isOn));
+        }
     }
-    
-    public void EnviarTodasLasRespuestas()
+
+    // Método para asegurar que solo un toggle pueda estar activo por pregunta
+    private void OnToggleChanged(int index, bool esSi, bool isOn)
+    {
+        if (isOn) // Si se activó uno, desactivar el otro
+        {
+            if (esSi)
+                togglesNo[index].isOn = false;
+            else
+                togglesSi[index].isOn = false;
+        }
+    }
+
+    public void GuardarRespuestasLocalmente()
     {
         // Validar si hay un usuario logueado
         if (string.IsNullOrEmpty(login.nombreRollActual))
         {
-            Debug.LogError("No hay usuario logueado. No se pueden enviar respuestas.");
+            Debug.LogError("No hay usuario logueado. No se pueden guardar respuestas.");
             return;
         }
 
         // Capturar las respuestas de las 12 preguntas (1 para "Sí", 0 para "No")
-        string[] respuestas = new string[12];
         for (int i = 0; i < togglesSi.Length; i++)
         {
-            respuestas[i] = togglesSi[i].isOn ? "1" : "0"; // 1 si "Sí", 0 si "No"
+            respuestasGuardadas[i] = togglesSi[i].isOn ? "1" : "0"; // 1 si "Sí", 0 si "No"
         }
 
-        // Iniciar la solicitud para enviar las respuestas
-        StartCoroutine(EnviarRespuestasAlServidor(respuestas));
+        Debug.Log($"Respuestas guardadas localmente para {login.nombreRollActual}: {string.Join(", ", respuestasGuardadas)}");
     }
 
-    IEnumerator EnviarRespuestasAlServidor(string[] respuestas)
+    // Método para obtener las respuestas en otra parte del juego si es necesario
+    public static string[] ObtenerRespuestas()
     {
-        WWWForm formulario = new WWWForm();
-        formulario.AddField("nombreroll", login.nombreRollActual); // Nombre del usuario
-
-        // Agregar respuestas al formulario
-        for (int i = 0; i < respuestas.Length; i++)
-        {
-            formulario.AddField($"p{i + 1}", respuestas[i]);
-        }
-
-        // Enviar la solicitud al servidor
-        UnityWebRequest request = UnityWebRequest.Post(servidor.servidor + "/encuestas.php", formulario);
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            Debug.Log($"Respuesta del servidor: {request.downloadHandler.text}");
-            var respuesta = JsonUtility.FromJson<Respuesta>(request.downloadHandler.text);
-
-            if (respuesta.codigo == 201)
-            {
-                Debug.Log("Respuestas enviadas correctamente.");
-            }
-            else
-            {
-                Debug.LogError($"Error enviando respuestas: {respuesta.mensaje}");
-            }
-        }
-        else
-        {
-            Debug.LogError($"Error en la solicitud: {request.error}");
-        }
+        return respuestasGuardadas;
     }
 }

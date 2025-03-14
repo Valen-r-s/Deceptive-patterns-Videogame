@@ -3,39 +3,39 @@ using TMPro;
 
 public class UserInfoDisplay : MonoBehaviour
 {
-    public GameObject userInfoCanvas; 
-    public TMP_Text userNameTMP;     
-    public TMP_Text userEmailTMP;    
+    public GameObject userInfoCanvas;
+    public TMP_Text userNameTMP;
+    public TMP_Text userEmailTMP;
 
     private void Start()
     {
-        userInfoCanvas.SetActive(false); 
+        userInfoCanvas.SetActive(false);
     }
 
     public void MostrarDatosUsuario()
     {
-        RegistrarUsuario registrarUsuario = FindObjectOfType<RegistrarUsuario>();
-        A guardarCorreo = FindObjectOfType<A>();
+        // Obtener los datos desde las variables estáticas
+        string nombreCompleto = RegistrarUsuario.ObtenerNombreCompleto();
+        string correo = A.ObtenerCorreo();
 
-        if (registrarUsuario == null || guardarCorreo == null)
+        if (!string.IsNullOrEmpty(nombreCompleto))
         {
-            Debug.LogError("No se encontró la referencia a los scripts necesarios.");
-            return;
-        }
-
-        // Obtener los datos del usuario
-        string nombreCompleto = registrarUsuario.ObtenerNombreCompleto();
-        string correo = A.ObtenerCorreo(); // Este método es estático, así que se puede llamar directamente
-
-        if (!string.IsNullOrEmpty(nombreCompleto) && !string.IsNullOrEmpty(correo))
-        {
-            userNameTMP.text = nombreCompleto;
-            userEmailTMP.text = correo;
-            userInfoCanvas.SetActive(true);
+            userNameTMP.text = $"{nombreCompleto}";
         }
         else
         {
-            Debug.LogError("No se encontraron datos del usuario. Verifica que los ingresó correctamente.");
+            userNameTMP.text = "Nombre no registrado";
         }
+
+        if (!string.IsNullOrEmpty(correo))
+        {
+            userEmailTMP.text = $"{correo}";
+        }
+        else
+        {
+            userEmailTMP.text = "Correo no registrado";
+        }
+
+        userInfoCanvas.SetActive(true);
     }
 }

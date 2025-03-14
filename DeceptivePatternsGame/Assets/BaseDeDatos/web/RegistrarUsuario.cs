@@ -19,12 +19,12 @@ public class RegistrarUsuario : MonoBehaviour
     public Button btnCerrarCanvasTyC;
     public GameObject TyCCanvas;
 
-    // Variables para almacenar los datos temporalmente
-    private string nombreCompleto;
-    private string nombreRoll;
-    private bool aceptoTerminos;
+    // Variables estáticas para almacenar los datos temporalmente
+    public static string nombreCompleto;
+    public static string nombreRoll;
+    public static bool aceptoTerminos;
 
-    void Start()
+    private void Start()
     {
         // Evitar que este objeto se destruya al cambiar de escena
         DontDestroyOnLoad(this.gameObject);
@@ -39,21 +39,14 @@ public class RegistrarUsuario : MonoBehaviour
         OcultarTodosLosMensajes();
     }
 
-
     private void OnToggleAceptarChanged(bool isOn)
     {
-        if (isOn)
-        {
-            toggleNoAceptar.isOn = false;
-        }
+        if (isOn) toggleNoAceptar.isOn = false;
     }
 
     private void OnToggleNoAceptarChanged(bool isOn)
     {
-        if (isOn)
-        {
-            toggleAceptar.isOn = false;
-        }
+        if (isOn) toggleAceptar.isOn = false;
     }
 
     public void RegistrarNuevoUsuario()
@@ -90,7 +83,6 @@ public class RegistrarUsuario : MonoBehaviour
 
         aceptoTerminos = toggleAceptar.isOn;
 
-        // Simulamos que el usuario ha sido registrado correctamente
         txtCorrecto.gameObject.SetActive(true);
         btnCerrarCanvas.gameObject.SetActive(true);
     }
@@ -118,18 +110,7 @@ public class RegistrarUsuario : MonoBehaviour
         btnCerrarCanvas.gameObject.SetActive(false);
     }
 
-    public string ObtenerNombreCompleto()
-    {
-        return nombreCompleto;
-    }
-
-    public string ObtenerNombreRoll()
-    {
-        return nombreRoll;
-    }
-
-    public bool AceptoTerminos()
-    {
-        return aceptoTerminos;
-    }
+    // **Hacer los métodos estáticos para que UserInfoDisplay pueda acceder a ellos**
+    public static string ObtenerNombreCompleto() { return nombreCompleto; }
+    public static string ObtenerNombreRoll() { return nombreRoll; }
 }

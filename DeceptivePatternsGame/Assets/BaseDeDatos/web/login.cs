@@ -11,17 +11,11 @@ public class login : MonoBehaviour
     public GameObject CrearUsuario;
     public GameObject PanelInicioSesionCorrecto;
 
-    // Referencia al script de Registro para obtener los datos temporales
-    private RegistrarUsuario registrarUsuario;
-
     // Variable para almacenar el nombre del usuario logueado
     public static string nombreRollActual;
 
     void Start()
     {
-        // Obtener la referencia al script de Registro (debe estar en la misma escena)
-        registrarUsuario = FindObjectOfType<RegistrarUsuario>();
-
         // Asegurar que los mensajes de error estén ocultos al inicio
         OcultarMensajesAdvertencia();
     }
@@ -37,7 +31,7 @@ public class login : MonoBehaviour
         }
 
         // Validar si el nombre ingresado coincide con el nombre registrado en la sesión
-        if (registrarUsuario != null && InputUsuario.text == registrarUsuario.ObtenerNombreRoll())
+        if (InputUsuario.text == RegistrarUsuario.ObtenerNombreRoll()) // Llamar método estático
         {
             // Inicio de sesión correcto
             nombreRollActual = InputUsuario.text;
